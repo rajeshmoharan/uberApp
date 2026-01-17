@@ -23,6 +23,7 @@ public class RideDto {
 
     private RiderDto rider;
     private DriverDto driver;
+    private String otp;
 
     private PaymentMethod paymentMethod;
 

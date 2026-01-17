@@ -1,10 +1,7 @@
 package org.spring.demo.uberapp.entities;
 
 import jakarta.persistence.*;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.locationtech.jts.geom.Point;
 import org.spring.demo.uberapp.entities.enums.PaymentMethod;
@@ -15,7 +12,9 @@ import java.time.LocalDateTime;
 
 @Entity
 @Getter
-@Setter @RequiredArgsConstructor @NoArgsConstructor
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
 public class Ride {
 
     @Id
