@@ -2,6 +2,7 @@ package org.spring.demo.uberapp.strategies.Impl;
 
 import org.spring.demo.uberapp.dto.RideRequestDto;
 import org.spring.demo.uberapp.entities.Driver;
+import org.spring.demo.uberapp.entities.RideRequest;
 import org.spring.demo.uberapp.strategies.DriverMatchingStrategy;
 
 import java.util.List;
@@ -9,7 +10,7 @@ import java.util.List;
 public class DriverMatchingHigestRatedStrategy implements DriverMatchingStrategy {
 
     @Override
-    public List<Driver> findMatchingDriver(RideRequestDto rideRequestDto) {
+    public List<Driver> findMatchingDriver(RideRequest rideRequest) {
         return List.of();
     }
 }

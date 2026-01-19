@@ -9,7 +9,10 @@ import org.spring.demo.uberapp.dto.RideRequestDto;
 import org.spring.demo.uberapp.dto.RiderDto;
 import org.spring.demo.uberapp.entities.RideRequest;
 import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
+import org.spring.demo.uberapp.repositories.RideRequestRepository;
 import org.spring.demo.uberapp.servies.RiderService;
+import org.spring.demo.uberapp.strategies.DriverMatchingStrategy;
+import org.spring.demo.uberapp.strategies.RideFareCalculationStrategy;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,14 +23,23 @@ import java.util.List;
 public class RiderServiceImpl implements RiderService {
 
     private final ModelMapper modelMapper;
+    private final RideFareCalculationStrategy rideFareCalculationStrategy;
+    private final DriverMatchingStrategy driverMatchingStrategy;
+    private final RideRequestRepository rideRequestRepository;
 
     @Override
     public RideRequestDto requestRide(RideRequestDto rideRequestDto) {
+
         RideRequest rideRequest = modelMapper.map(rideRequestDto, RideRequest.class);
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
 
-        log.info("Ride request {}",rideRequest);
-        return null;
+        double fare = rideFareCalculationStrategy.calculateFare(rideRequest);
+        rideRequest.setFare(fare);
+
+        RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
+        driverMatchingStrategy.findMatchingDriver(rideRequest);
+
+        return modelMapper.map(savedRideRequest,RideRequestDto.class);
     }
 
     @Override
