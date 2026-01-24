@@ -11,11 +11,13 @@ import org.spring.demo.uberapp.entities.RideRequest;
 import org.spring.demo.uberapp.entities.Rider;
 import org.spring.demo.uberapp.entities.User;
 import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
+import org.spring.demo.uberapp.exceptions.ResourceNotFoundException;
 import org.spring.demo.uberapp.repositories.RideRequestRepository;
 import org.spring.demo.uberapp.repositories.RiderRepository;
 import org.spring.demo.uberapp.servies.RiderService;
 import org.spring.demo.uberapp.strategies.DriverMatchingStrategy;
 import org.spring.demo.uberapp.strategies.RideFareCalculationStrategy;
+import org.spring.demo.uberapp.strategies.RideStrategyManager;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,8 +28,7 @@ import java.util.List;
 public class RiderServiceImpl implements RiderService {
 
     private final ModelMapper modelMapper;
-    private final RideFareCalculationStrategy rideFareCalculationStrategy;
-    private final DriverMatchingStrategy driverMatchingStrategy;
+    private final RideStrategyManager rideStrategyManager;
     private final RideRequestRepository rideRequestRepository;
     private final RiderRepository riderRepository;
 
@@ -37,11 +38,11 @@ public class RiderServiceImpl implements RiderService {
         RideRequest rideRequest = modelMapper.map(rideRequestDto, RideRequest.class);
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
 
-        double fare = rideFareCalculationStrategy.calculateFare(rideRequest);
+        double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
         rideRequest.setFare(fare);
 
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
-        driverMatchingStrategy.findMatchingDriver(rideRequest);
+        rideStrategyManager.driverMatchingStrategy(getRiderDetails().getRating()).findMatchingDriver(rideRequest);
 
         return modelMapper.map(savedRideRequest,RideRequestDto.class);
     }
@@ -74,5 +75,13 @@ public class RiderServiceImpl implements RiderService {
                 .rating(0.0)
                 .build();
         return riderRepository.save(rider);
+    }
+
+    @Override
+    public Rider getRiderDetails() {
+
+         return riderRepository.findById(1L)
+                 .orElseThrow(() -> new ResourceNotFoundException("Rider not found with the details"));
+
     }
 }
