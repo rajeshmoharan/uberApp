@@ -8,8 +8,11 @@ import org.spring.demo.uberapp.dto.RideDto;
 import org.spring.demo.uberapp.dto.RideRequestDto;
 import org.spring.demo.uberapp.dto.RiderDto;
 import org.spring.demo.uberapp.entities.RideRequest;
+import org.spring.demo.uberapp.entities.Rider;
+import org.spring.demo.uberapp.entities.User;
 import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
 import org.spring.demo.uberapp.repositories.RideRequestRepository;
+import org.spring.demo.uberapp.repositories.RiderRepository;
 import org.spring.demo.uberapp.servies.RiderService;
 import org.spring.demo.uberapp.strategies.DriverMatchingStrategy;
 import org.spring.demo.uberapp.strategies.RideFareCalculationStrategy;
@@ -26,6 +29,7 @@ public class RiderServiceImpl implements RiderService {
     private final RideFareCalculationStrategy rideFareCalculationStrategy;
     private final DriverMatchingStrategy driverMatchingStrategy;
     private final RideRequestRepository rideRequestRepository;
+    private final RiderRepository riderRepository;
 
     @Override
     public RideRequestDto requestRide(RideRequestDto rideRequestDto) {
@@ -60,5 +64,15 @@ public class RiderServiceImpl implements RiderService {
     @Override
     public List<RideDto> getAllMyRides() {
         return List.of();
+    }
+
+    @Override
+    public Rider createNewRider(User user) {
+        Rider rider = Rider
+                .builder()
+                .user(user)
+                .rating(0.0)
+                .build();
+        return riderRepository.save(rider);
     }
 }
