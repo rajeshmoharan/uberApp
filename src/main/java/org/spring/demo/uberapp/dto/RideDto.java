@@ -1,23 +1,25 @@
 package org.spring.demo.uberapp.dto;
 
-import jakarta.persistence.*;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import org.locationtech.jts.geom.Point;
-import org.spring.demo.uberapp.entities.Driver;
-import org.spring.demo.uberapp.entities.Rider;
 import org.spring.demo.uberapp.entities.enums.PaymentMethod;
 import org.spring.demo.uberapp.entities.enums.RideStatus;
 
 import java.time.LocalDateTime;
 
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
 public class RideDto {
 
 
     private Long id;
 
-    private Point pickupLocation;
+    private PointDto pickupLocation;
 
-    private Point dropLocation;
+    private PointDto dropLocation;
 
     private LocalDateTime createdTime;
 

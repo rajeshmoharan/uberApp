@@ -1,11 +1,9 @@
 package org.spring.demo.uberapp.strategies.Impl;
 
 import lombok.RequiredArgsConstructor;
-import org.spring.demo.uberapp.dto.RideRequestDto;
 import org.spring.demo.uberapp.entities.RideRequest;
 import org.spring.demo.uberapp.servies.DistanceService;
 import org.spring.demo.uberapp.strategies.RideFareCalculationStrategy;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 @Service

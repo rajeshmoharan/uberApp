@@ -30,7 +30,7 @@ public class RideRequest {
     private Point dropLocation;
 
     @CreationTimestamp
-    private LocalDateTime requrestedTime;
+    private LocalDateTime requestedTime;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private Rider rider;

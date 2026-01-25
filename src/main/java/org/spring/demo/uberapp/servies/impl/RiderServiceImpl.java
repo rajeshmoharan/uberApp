@@ -15,10 +15,9 @@ import org.spring.demo.uberapp.exceptions.ResourceNotFoundException;
 import org.spring.demo.uberapp.repositories.RideRequestRepository;
 import org.spring.demo.uberapp.repositories.RiderRepository;
 import org.spring.demo.uberapp.servies.RiderService;
-import org.spring.demo.uberapp.strategies.DriverMatchingStrategy;
-import org.spring.demo.uberapp.strategies.RideFareCalculationStrategy;
 import org.spring.demo.uberapp.strategies.RideStrategyManager;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -33,16 +32,20 @@ public class RiderServiceImpl implements RiderService {
     private final RiderRepository riderRepository;
 
     @Override
+    @Transactional
     public RideRequestDto requestRide(RideRequestDto rideRequestDto) {
-
+        Rider rider = getRiderDetails();
         RideRequest rideRequest = modelMapper.map(rideRequestDto, RideRequest.class);
         rideRequest.setRideRequestStatus(RideRequestStatus.PENDING);
+        rideRequest.setRider(rider);
 
         double fare = rideStrategyManager.rideFareCalculationStrategy().calculateFare(rideRequest);
         rideRequest.setFare(fare);
 
         RideRequest savedRideRequest = rideRequestRepository.save(rideRequest);
         rideStrategyManager.driverMatchingStrategy(getRiderDetails().getRating()).findMatchingDriver(rideRequest);
+
+        //TODO send notification to all the drivers
 
         return modelMapper.map(savedRideRequest,RideRequestDto.class);
     }

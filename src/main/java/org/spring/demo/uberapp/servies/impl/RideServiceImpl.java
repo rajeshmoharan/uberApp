@@ -1,22 +1,30 @@
 package org.spring.demo.uberapp.servies.impl;
 
-import org.spring.demo.uberapp.dto.DriverDto;
-import org.spring.demo.uberapp.dto.RideDto;
+import lombok.RequiredArgsConstructor;
+import org.modelmapper.ModelMapper;
 import org.spring.demo.uberapp.dto.RideRequestDto;
-import org.spring.demo.uberapp.dto.RiderDto;
 import org.spring.demo.uberapp.entities.Driver;
 import org.spring.demo.uberapp.entities.Ride;
+import org.spring.demo.uberapp.entities.RideRequest;
+import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
 import org.spring.demo.uberapp.entities.enums.RideStatus;
+import org.spring.demo.uberapp.exceptions.RuntimeConflictException;
+import org.spring.demo.uberapp.repositories.RideRepository;
+import org.spring.demo.uberapp.repositories.RideRequestRepository;
+import org.spring.demo.uberapp.servies.RideRequestService;
 import org.spring.demo.uberapp.servies.RideService;
-import org.spring.demo.uberapp.servies.RiderService;
+import org.spring.demo.uberapp.util.Utils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
+@RequiredArgsConstructor
 public class RideServiceImpl implements RideService {
+
+    private final RideRepository rideRepository;
+    private final ModelMapper modelMapper;
+    private final RideRequestService rideRequestService;
 
 
     @Override
@@ -30,8 +38,21 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public Ride createNewRide(RideRequestDto rideRequestDto, Driver driver) {
-        return null;
+    public Ride createNewRide(RideRequest rideRequest, Driver driver) {
+        try{
+            rideRequest.setRideRequestStatus(RideRequestStatus.CONFIRMED);
+
+            Ride ride = modelMapper.map(rideRequest, Ride.class);
+            ride.setId(null);
+            ride.setRideStatus(RideStatus.CONFIRMED);
+            ride.setDriver(driver);
+            ride.setOtp(Utils.generateOtp());
+
+            rideRequestService.update(rideRequest);
+            return rideRepository.save(ride);
+        } catch (Exception e) {
+            throw new RuntimeConflictException("Unable to create ride right now "+e.getMessage());
+        }
     }
 
     @Override

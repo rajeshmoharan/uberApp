@@ -3,13 +3,13 @@ package org.spring.demo.uberapp.servies;
 import org.spring.demo.uberapp.dto.DriverDto;
 import org.spring.demo.uberapp.dto.RideDto;
 import org.spring.demo.uberapp.dto.RiderDto;
-import org.spring.demo.uberapp.entities.Ride;
+import org.spring.demo.uberapp.entities.Driver;
 
 import java.util.List;
 
 public interface DriverService {
 
-    RideDto acceptRide(Long rideId);
+    RideDto acceptRide(Long rideRequestId);
 
     RideDto cancelRide(Long rideId);
 
@@ -22,4 +22,6 @@ public interface DriverService {
     DriverDto getMyProfile();
 
     List<RideDto> getAllMyRides();
+
+    Driver getCurrentDriver();
 }
