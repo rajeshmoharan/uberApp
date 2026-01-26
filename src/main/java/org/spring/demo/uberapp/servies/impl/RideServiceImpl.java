@@ -10,7 +10,6 @@ import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
 import org.spring.demo.uberapp.entities.enums.RideStatus;
 import org.spring.demo.uberapp.exceptions.RuntimeConflictException;
 import org.spring.demo.uberapp.repositories.RideRepository;
-import org.spring.demo.uberapp.repositories.RideRequestRepository;
 import org.spring.demo.uberapp.servies.RideRequestService;
 import org.spring.demo.uberapp.servies.RideService;
 import org.spring.demo.uberapp.util.Utils;
@@ -29,7 +28,8 @@ public class RideServiceImpl implements RideService {
 
     @Override
     public Ride getRideById(Long rideId) {
-        return null;
+        return rideRepository.findById(rideId)
+                .orElseThrow(() -> new RuntimeException("Ride not found with the ride Id"+rideId));
     }
 
     @Override
@@ -50,14 +50,16 @@ public class RideServiceImpl implements RideService {
 
             rideRequestService.update(rideRequest);
             return rideRepository.save(ride);
+
         } catch (Exception e) {
             throw new RuntimeConflictException("Unable to create ride right now "+e.getMessage());
         }
     }
 
     @Override
-    public Ride updateRideStatus(Long rideId, RideStatus rideStatus) {
-        return null;
+    public Ride updateRideStatus(Ride ride, RideStatus rideStatus) {
+        ride.setRideStatus(rideStatus);
+        return rideRepository.save(ride);
     }
 
     @Override

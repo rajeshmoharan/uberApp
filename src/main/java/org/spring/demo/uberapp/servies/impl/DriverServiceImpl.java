@@ -9,6 +9,7 @@ import org.spring.demo.uberapp.entities.Driver;
 import org.spring.demo.uberapp.entities.Ride;
 import org.spring.demo.uberapp.entities.RideRequest;
 import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
+import org.spring.demo.uberapp.entities.enums.RideStatus;
 import org.spring.demo.uberapp.exceptions.ResourceNotFoundException;
 import org.spring.demo.uberapp.exceptions.RuntimeConflictException;
 import org.spring.demo.uberapp.repositories.DriverRepository;
@@ -18,6 +19,7 @@ import org.spring.demo.uberapp.servies.RideService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
@@ -44,7 +46,10 @@ public class DriverServiceImpl implements DriverService {
             throw new RuntimeException("Driver is not available to accept the ride");
         }
 
-        Ride newRide = rideService.createNewRide(rideRequestById, currentDriver);
+        currentDriver.setAvailable(false);
+        Driver savedDriver = driverRepository.save(currentDriver);
+
+        Ride newRide = rideService.createNewRide(rideRequestById, savedDriver);
         return modelMapper.map(newRide,RideDto.class);
     }
 
@@ -54,8 +59,29 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
-    public RideDto startRide(Long rideId) {
-        return null;
+    @Transactional
+    public RideDto startRide(Long rideId,String otp) {
+
+        Ride rideById = rideService.getRideById(rideId);
+        Driver currentDriver = getCurrentDriver();
+
+        if(!currentDriver.equals(rideById.getDriver())){
+            throw new RuntimeException("Driver cannot start a ride as he has not started earlier");
+        }
+
+        if(!rideById.getRideStatus().equals(RideStatus.CONFIRMED)){
+            throw new RuntimeException("Ride status is not CONFIRMED hence cannot be started, status"+rideById.getRideStatus());
+        }
+
+        if(!rideById.getOtp().equals(otp)){
+            throw new RuntimeException("Otp is not valid,otp"+otp);
+        }
+
+        rideById.setStartedAt(LocalDateTime.now());
+        Ride ride = rideService.updateRideStatus(rideById, RideStatus.ONGOING);
+        currentDriver.setAvailable(false);
+
+        return modelMapper.map(ride, RideDto.class);
     }
 
     @Override

@@ -3,7 +3,6 @@ package org.spring.demo.uberapp.dto;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.locationtech.jts.geom.Point;
 import org.spring.demo.uberapp.entities.enums.PaymentMethod;
 import org.spring.demo.uberapp.entities.enums.RideStatus;
 
