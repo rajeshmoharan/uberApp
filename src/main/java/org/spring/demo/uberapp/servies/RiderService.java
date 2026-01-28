@@ -13,7 +13,7 @@ public interface RiderService {
 
     RideRequestDto requestRide(RideRequestDto rideRequestDto);
 
-    RideRequestDto cancelRide(RideRequestDto rideRequestDto);
+    RideDto cancelRide(Long rideId);
 
     DriverDto rateDriver(Long rideId, Integer rating);
 
@@ -25,4 +25,5 @@ public interface RiderService {
 
     Rider getRiderDetails();
 
+    Rider getCurrentRider();
 }

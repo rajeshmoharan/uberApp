@@ -16,6 +16,8 @@ import org.spring.demo.uberapp.repositories.DriverRepository;
 import org.spring.demo.uberapp.servies.DriverService;
 import org.spring.demo.uberapp.servies.RideRequestService;
 import org.spring.demo.uberapp.servies.RideService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -54,8 +56,24 @@ public class DriverServiceImpl implements DriverService {
     }
 
     @Override
+    @Transactional
     public RideDto cancelRide(Long rideId) {
-        return null;
+
+        Ride rideById = rideService.getRideById(rideId);
+        Driver currentDriver = getCurrentDriver();
+
+        if(!currentDriver.equals(rideById.getDriver())){
+            throw new RuntimeException("Driver cannot start a ride as he has not started earlier");
+        }
+
+        if(!rideById.getRideStatus().equals(RideStatus.CONFIRMED)){
+            throw new RuntimeException("Ride cannot be cancelled other than Confirm status : "+rideById.getRideStatus());
+        }
+
+        rideService.updateRideStatus(rideById,RideStatus.CANCELLED);
+        driverAvailabilityUpdate(currentDriver,true);
+
+        return modelMapper.map(rideById, RideDto.class);
     }
 
     @Override
@@ -96,12 +114,16 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public DriverDto getMyProfile() {
-        return null;
+        Driver currentDriver = getCurrentDriver();
+        return modelMapper.map(currentDriver, DriverDto.class);
     }
 
     @Override
-    public List<RideDto> getAllMyRides() {
-        return List.of();
+    public Page<RideDto> getAllMyRides(PageRequest pageRequest) {
+        Driver currentDriver = getCurrentDriver();
+        return rideService
+                .getAllRidesOfDriver(currentDriver.getId(), pageRequest)
+                .map(ride -> modelMapper.map(ride,RideDto.class));
     }
 
     @Override
@@ -109,5 +131,11 @@ public class DriverServiceImpl implements DriverService {
         return driverRepository
                 .findById(2L)
                 .orElseThrow(() -> new ResourceNotFoundException("Driver not found with the driver id"+2L));
+    }
+
+    @Override
+    public Driver driverAvailabilityUpdate(Driver driver, boolean status) {
+        driver.setAvailable(true);
+        return driverRepository.save(driver);
     }
 }

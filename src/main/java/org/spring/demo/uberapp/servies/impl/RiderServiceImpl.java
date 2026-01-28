@@ -7,13 +7,17 @@ import org.spring.demo.uberapp.dto.DriverDto;
 import org.spring.demo.uberapp.dto.RideDto;
 import org.spring.demo.uberapp.dto.RideRequestDto;
 import org.spring.demo.uberapp.dto.RiderDto;
+import org.spring.demo.uberapp.entities.Ride;
 import org.spring.demo.uberapp.entities.RideRequest;
 import org.spring.demo.uberapp.entities.Rider;
 import org.spring.demo.uberapp.entities.User;
 import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
+import org.spring.demo.uberapp.entities.enums.RideStatus;
 import org.spring.demo.uberapp.exceptions.ResourceNotFoundException;
 import org.spring.demo.uberapp.repositories.RideRequestRepository;
 import org.spring.demo.uberapp.repositories.RiderRepository;
+import org.spring.demo.uberapp.servies.DriverService;
+import org.spring.demo.uberapp.servies.RideService;
 import org.spring.demo.uberapp.servies.RiderService;
 import org.spring.demo.uberapp.strategies.RideStrategyManager;
 import org.springframework.stereotype.Service;
@@ -30,6 +34,8 @@ public class RiderServiceImpl implements RiderService {
     private final RideStrategyManager rideStrategyManager;
     private final RideRequestRepository rideRequestRepository;
     private final RiderRepository riderRepository;
+    private final RideService rideService;
+    private final DriverService driverService;
 
     @Override
     @Transactional
@@ -51,8 +57,23 @@ public class RiderServiceImpl implements RiderService {
     }
 
     @Override
-    public RideRequestDto cancelRide(RideRequestDto rideRequestDto) {
-        return null;
+    public RideDto cancelRide(Long rideId) {
+
+        Rider currentRider = getCurrentRider();
+        Ride rideById = rideService.getRideById(rideId);
+
+        if(!currentRider.equals(rideById.getRider())){
+            throw new RuntimeException("Rider does not own this ride with id : "+rideById.getId());
+        }
+
+        if(!rideById.getRideStatus().equals(RideStatus.CONFIRMED)){
+            throw new RuntimeException("Ride cannot be cancelled other than Confirm status : "+rideById.getRideStatus());
+        }
+
+        Ride ride = rideService.updateRideStatus(rideById, RideStatus.CANCELLED);
+        driverService.driverAvailabilityUpdate(rideById.getDriver(),true);
+
+        return modelMapper.map(ride, RideDto.class);
     }
 
     @Override
@@ -82,9 +103,14 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public Rider getRiderDetails() {
-
          return riderRepository.findById(1L)
                  .orElseThrow(() -> new ResourceNotFoundException("Rider not found with the details"));
 
+    }
+
+    @Override
+    public Rider getCurrentRider() {
+        return riderRepository.findById(1L)
+                .orElseThrow(() -> new RuntimeException("Rider not available with the id "));
     }
 }
