@@ -1,12 +1,18 @@
 package org.spring.demo.uberapp.entities;
 
 import jakarta.persistence.*;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.spring.demo.uberapp.entities.enums.TransactionType;
 
 import java.time.LocalDateTime;
 
 @Entity
+@Getter
+@Setter
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class WalletTransaction {
 
     @Id

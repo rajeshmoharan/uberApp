@@ -6,6 +6,7 @@ import org.spring.demo.uberapp.dto.RideRequestDto;
 import org.spring.demo.uberapp.entities.Driver;
 import org.spring.demo.uberapp.entities.Ride;
 import org.spring.demo.uberapp.entities.RideRequest;
+import org.spring.demo.uberapp.entities.Rider;
 import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
 import org.spring.demo.uberapp.entities.enums.RideStatus;
 import org.spring.demo.uberapp.exceptions.RuntimeConflictException;
@@ -63,12 +64,12 @@ public class RideServiceImpl implements RideService {
     }
 
     @Override
-    public Page<Ride> getAllRidesOfRider(Long riderId, PageRequest pageRequest) {
-        return null;
+    public Page<Ride> getAllRidesOfRider(Rider rider, PageRequest pageRequest) {
+        return rideRepository.findByRider(rider,pageRequest);
     }
 
     @Override
-    public Page<Ride> getAllRidesOfDriver(Long driverId, PageRequest pageRequest) {
-        return null;
+    public Page<Ride> getAllRidesOfDriver(Driver driver, PageRequest pageRequest) {
+        return rideRepository.findByDriver(driver,pageRequest);
     }
 }
