@@ -3,6 +3,7 @@ package org.spring.demo.uberapp.entities;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.spring.demo.uberapp.entities.enums.TransactionMethod;
 import org.spring.demo.uberapp.entities.enums.TransactionType;
 
 import java.time.LocalDateTime;
@@ -28,6 +29,9 @@ public class WalletTransaction {
     private Ride ride;
 
     private  String transactionId;
+
+    @Enumerated(EnumType.STRING)
+    private TransactionMethod transactionMethod;
 
     @ManyToOne
     private Wallet wallet;

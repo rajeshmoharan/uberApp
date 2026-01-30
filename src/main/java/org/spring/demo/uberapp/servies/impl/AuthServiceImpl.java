@@ -11,6 +11,7 @@ import org.spring.demo.uberapp.exceptions.RuntimeConflictException;
 import org.spring.demo.uberapp.repositories.UserRepository;
 import org.spring.demo.uberapp.servies.AuthService;
 import org.spring.demo.uberapp.servies.RiderService;
+import org.spring.demo.uberapp.servies.WalletService;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -24,6 +25,7 @@ public class AuthServiceImpl implements AuthService {
     private final ModelMapper modelMapper;
     private final UserRepository userRepository;
     private final RiderService riderService;
+    private final WalletService walletService;
 
     @Override
     public String login(String email, String password) {
@@ -45,8 +47,7 @@ public class AuthServiceImpl implements AuthService {
 
         riderService.createNewRider(saved);
 
-        //TODO add wallet related service here
-
+        walletService.createNewWallet(saved);
         return modelMapper.map(saved,UserDto.class);
     }
 

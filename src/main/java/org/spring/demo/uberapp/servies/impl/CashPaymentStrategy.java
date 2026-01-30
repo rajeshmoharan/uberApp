@@ -3,7 +3,6 @@ package org.spring.demo.uberapp.servies.impl;
 import lombok.RequiredArgsConstructor;
 import org.spring.demo.uberapp.entities.Driver;
 import org.spring.demo.uberapp.entities.Payment;
-import org.spring.demo.uberapp.entities.Rider;
 import org.spring.demo.uberapp.entities.enums.PaymentStatus;
 import org.spring.demo.uberapp.entities.enums.TransactionMethod;
 import org.spring.demo.uberapp.repositories.PaymentRepository;
@@ -14,7 +13,7 @@ import org.springframework.stereotype.Service;
 
 @Service
 @RequiredArgsConstructor
-public class WalletPaymentStrategy implements PaymentStrategy {
+public class CashPaymentStrategy implements PaymentStrategy {
 
     private final WalletService walletService;
 //    private final PaymentService paymentService;
@@ -22,16 +21,15 @@ public class WalletPaymentStrategy implements PaymentStrategy {
 
     @Override
     public void processPayment(Payment payment) {
+
         Driver driver = payment.getRide().getDriver();
-        Rider rider = payment.getRide().getRider();
+        double platformAmountToDeduct = payment.getAmount() * PLATFORM_COMMISSION;
 
-        walletService.deductMoneyFromWallet(rider.getUser(),payment.getAmount(),null,payment.getRide(), TransactionMethod.RIDE);
+       walletService.deductMoneyFromWallet(driver.getUser(),platformAmountToDeduct,
+               null,payment.getRide(), TransactionMethod.RIDE);
 
-        double driversCut = payment.getAmount() * (1-PLATFORM_COMMISSION);
+//       paymentService.updatePaymentStatus(payment, PaymentStatus.CONFIRMED);
 
-        walletService.addMoneyToWallet(driver.getUser(),driversCut,null,payment.getRide(),TransactionMethod.RIDE);
-
-//        paymentService.updatePaymentStatus(payment, PaymentStatus.CONFIRMED);
         payment.setPaymentStatus(PaymentStatus.CONFIRMED);
         paymentRepository.save(payment);
     }

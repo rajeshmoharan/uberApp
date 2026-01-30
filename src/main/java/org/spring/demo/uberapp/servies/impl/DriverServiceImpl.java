@@ -14,6 +14,7 @@ import org.spring.demo.uberapp.exceptions.ResourceNotFoundException;
 import org.spring.demo.uberapp.exceptions.RuntimeConflictException;
 import org.spring.demo.uberapp.repositories.DriverRepository;
 import org.spring.demo.uberapp.servies.DriverService;
+import org.spring.demo.uberapp.servies.PaymentService;
 import org.spring.demo.uberapp.servies.RideRequestService;
 import org.spring.demo.uberapp.servies.RideService;
 import org.springframework.data.domain.Page;
@@ -32,6 +33,7 @@ public class DriverServiceImpl implements DriverService {
     private final DriverRepository driverRepository;
     private final RideService rideService;
     private final ModelMapper modelMapper;
+    private final PaymentService paymentService;
 
     @Override
     @Transactional
@@ -99,12 +101,33 @@ public class DriverServiceImpl implements DriverService {
         Ride ride = rideService.updateRideStatus(rideById, RideStatus.ONGOING);
         currentDriver.setAvailable(false);
 
+        paymentService.createNewPayment(ride);
+
         return modelMapper.map(ride, RideDto.class);
     }
 
     @Override
+    @Transactional
     public RideDto endRide(Long rideId) {
-        return null;
+
+        Ride rideById = rideService.getRideById(rideId);
+        Driver currentDriver = getCurrentDriver();
+
+        if(!currentDriver.equals(rideById.getDriver())){
+            throw new RuntimeException("Driver cannot start a ride as he has not started earlier");
+        }
+
+        if(!rideById.getRideStatus().equals(RideStatus.ONGOING)){
+            throw new RuntimeException("Ride status is not ONGOING hence cannot be ended, status"+rideById.getRideStatus());
+        }
+
+        rideById.setEndedAt(LocalDateTime.now());
+        Ride ride = rideService.updateRideStatus(rideById, RideStatus.ENDED);
+        driverAvailabilityUpdate(currentDriver,true);
+
+        paymentService.processPayment(rideById);
+
+        return modelMapper.map(ride, RideDto.class);
     }
 
     @Override
@@ -122,7 +145,7 @@ public class DriverServiceImpl implements DriverService {
     public Page<RideDto> getAllMyRides(PageRequest pageRequest) {
         Driver currentDriver = getCurrentDriver();
         return rideService
-                .getAllRidesOfDriver(currentDriver.getId(), pageRequest)
+                .getAllRidesOfDriver(currentDriver, pageRequest)
                 .map(ride -> modelMapper.map(ride,RideDto.class));
     }
 
