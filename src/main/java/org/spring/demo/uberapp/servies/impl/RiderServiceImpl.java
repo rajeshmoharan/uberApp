@@ -19,13 +19,11 @@ import org.spring.demo.uberapp.repositories.RiderRepository;
 import org.spring.demo.uberapp.servies.DriverService;
 import org.spring.demo.uberapp.servies.RideService;
 import org.spring.demo.uberapp.servies.RiderService;
-import org.spring.demo.uberapp.strategies.RideStrategyManager;
+import org.spring.demo.uberapp.strategies.Impl.RideStrategyManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor

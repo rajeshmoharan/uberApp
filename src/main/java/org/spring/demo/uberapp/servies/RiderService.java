@@ -28,4 +28,5 @@ public interface RiderService {
     Rider getRiderDetails();
 
     Rider getCurrentRider();
+
 }

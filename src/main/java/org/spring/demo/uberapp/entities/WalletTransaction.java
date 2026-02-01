@@ -25,7 +25,7 @@ public class WalletTransaction {
     @Enumerated(EnumType.STRING)
     private TransactionType transactionType;
 
-    @OneToOne
+    @ManyToOne
     private Ride ride;
 
     private  String transactionId;

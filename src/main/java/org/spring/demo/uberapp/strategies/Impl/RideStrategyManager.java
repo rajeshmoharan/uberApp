@@ -1,10 +1,8 @@
-package org.spring.demo.uberapp.strategies;
+package org.spring.demo.uberapp.strategies.Impl;
 
 import lombok.RequiredArgsConstructor;
-import org.spring.demo.uberapp.strategies.Impl.DriverMatchingHigestRatedStrategy;
-import org.spring.demo.uberapp.strategies.Impl.DriverMatchingNearestDriverStrategy;
-import org.spring.demo.uberapp.strategies.Impl.RideFareSurgePricingFareCalculationStrategy;
-import org.spring.demo.uberapp.strategies.Impl.RiderFareDefaultFareCalculationStrategy;
+import org.spring.demo.uberapp.strategies.DriverMatchingStrategy;
+import org.spring.demo.uberapp.strategies.RideFareCalculationStrategy;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalTime;

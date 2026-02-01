@@ -1,17 +1,20 @@
 package org.spring.demo.uberapp.entities;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 import org.locationtech.jts.geom.Point;
 
 @Entity
 @Getter
 @Setter
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(
+        indexes = {
+                @Index(name = "idx_vechile_id",columnList = "vechileId")
+        }
+)
 public class Driver {
 
     @Id
