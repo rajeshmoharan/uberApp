@@ -7,16 +7,14 @@ import org.spring.demo.uberapp.dto.DriverDto;
 import org.spring.demo.uberapp.dto.RideDto;
 import org.spring.demo.uberapp.dto.RideRequestDto;
 import org.spring.demo.uberapp.dto.RiderDto;
-import org.spring.demo.uberapp.entities.Ride;
-import org.spring.demo.uberapp.entities.RideRequest;
-import org.spring.demo.uberapp.entities.Rider;
-import org.spring.demo.uberapp.entities.User;
+import org.spring.demo.uberapp.entities.*;
 import org.spring.demo.uberapp.entities.enums.RideRequestStatus;
 import org.spring.demo.uberapp.entities.enums.RideStatus;
 import org.spring.demo.uberapp.exceptions.ResourceNotFoundException;
 import org.spring.demo.uberapp.repositories.RideRequestRepository;
 import org.spring.demo.uberapp.repositories.RiderRepository;
 import org.spring.demo.uberapp.servies.DriverService;
+import org.spring.demo.uberapp.servies.RatingService;
 import org.spring.demo.uberapp.servies.RideService;
 import org.spring.demo.uberapp.servies.RiderService;
 import org.spring.demo.uberapp.strategies.Impl.RideStrategyManager;
@@ -36,6 +34,7 @@ public class RiderServiceImpl implements RiderService {
     private final RiderRepository riderRepository;
     private final RideService rideService;
     private final DriverService driverService;
+    private final RatingService ratingService;
 
     @Override
     @Transactional
@@ -78,7 +77,18 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public DriverDto rateDriver(Long rideId, Integer rating) {
-        return null;
+        Ride rideById = rideService.getRideById(rideId);
+        Rider currentRider = getCurrentRider();
+
+        if(!currentRider.equals(rideById.getRider())){
+            throw new RuntimeException("Driver cannot rate a rider as he has not started the ride with the rider");
+        }
+
+        if(!rideById.getRideStatus().equals(RideStatus.ENDED)){
+            throw new RuntimeException("Ride status is not ENDED hence cannot be rated, status"+rideById.getRideStatus());
+        }
+
+        return ratingService.rateDriver(rideById,rating);
     }
 
     @Override

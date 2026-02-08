@@ -12,7 +12,7 @@ import org.locationtech.jts.geom.Point;
 @NoArgsConstructor
 @Table(
         indexes = {
-                @Index(name = "idx_vechile_id",columnList = "vechileId")
+                @Index(name = "idx_driver_vechile_id",columnList = "vechileId")
         }
 )
 public class Driver {

@@ -45,4 +45,9 @@ public class RiderController {
         return new ResponseEntity<>(riderService.getAllMyRides(pageRequest), HttpStatus.OK);
     }
 
+    @PostMapping("/rateDriver/{rideId}/{rating}")
+    private ResponseEntity<DriverDto> rateRider(@PathVariable Long rideId,@PathVariable Integer rating){
+        return new ResponseEntity<>(riderService.rateDriver(rideId,rating), HttpStatus.OK);
+    }
+
 }

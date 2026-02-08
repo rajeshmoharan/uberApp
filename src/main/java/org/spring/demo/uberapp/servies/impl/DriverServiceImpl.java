@@ -13,10 +13,7 @@ import org.spring.demo.uberapp.entities.enums.RideStatus;
 import org.spring.demo.uberapp.exceptions.ResourceNotFoundException;
 import org.spring.demo.uberapp.exceptions.RuntimeConflictException;
 import org.spring.demo.uberapp.repositories.DriverRepository;
-import org.spring.demo.uberapp.servies.DriverService;
-import org.spring.demo.uberapp.servies.PaymentService;
-import org.spring.demo.uberapp.servies.RideRequestService;
-import org.spring.demo.uberapp.servies.RideService;
+import org.spring.demo.uberapp.servies.*;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -34,6 +31,7 @@ public class DriverServiceImpl implements DriverService {
     private final RideService rideService;
     private final ModelMapper modelMapper;
     private final PaymentService paymentService;
+    private final RatingService ratingService;
 
     @Override
     @Transactional
@@ -103,6 +101,8 @@ public class DriverServiceImpl implements DriverService {
 
         paymentService.createNewPayment(ride);
 
+        ratingService.createRatingForRide(ride);
+
         return modelMapper.map(ride, RideDto.class);
     }
 
@@ -132,7 +132,18 @@ public class DriverServiceImpl implements DriverService {
 
     @Override
     public RiderDto rateRider(Long rideId, Integer rating) {
-        return null;
+        Ride rideById = rideService.getRideById(rideId);
+        Driver currentDriver = getCurrentDriver();
+
+        if(!currentDriver.equals(rideById.getDriver())){
+            throw new RuntimeException("Driver cannot rate a rider as he has not started the ride with the rider");
+        }
+
+        if(!rideById.getRideStatus().equals(RideStatus.ENDED)){
+            throw new RuntimeException("Ride status is not ENDED hence cannot be rated, status"+rideById.getRideStatus());
+        }
+
+        return ratingService.rateRider(rideById,rating);
     }
 
     @Override
