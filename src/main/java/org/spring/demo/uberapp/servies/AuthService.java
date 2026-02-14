@@ -6,7 +6,7 @@ import org.spring.demo.uberapp.dto.UserDto;
 
 public interface AuthService {
 
-    String login(String email,String password);
+    String[] login(String email,String password);
 
     UserDto signUp(SignUpDto signUpDto);
 

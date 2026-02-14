@@ -15,6 +15,7 @@ import org.spring.demo.uberapp.servies.AuthService;
 import org.spring.demo.uberapp.servies.DriverService;
 import org.spring.demo.uberapp.servies.RiderService;
 import org.spring.demo.uberapp.servies.WalletService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,10 +31,13 @@ public class AuthServiceImpl implements AuthService {
     private final RiderService riderService;
     private final WalletService walletService;
     private final DriverService driverService;
+    private final PasswordEncoder passwordEncoder;
 
     @Override
-    public String login(String email, String password) {
-        return "";
+    public String[] login(String email, String password) {
+        String tokens[] = new String[2];
+        // TODO : Implement the login logic and generate access and refresh tokens
+        return tokens;
     }
 
     @Override
@@ -47,6 +51,7 @@ public class AuthServiceImpl implements AuthService {
 
         User map = modelMapper.map(signUpDto, User.class);
         map.setRoles(Set.of(Role.RIDER));
+        map.setPassword(passwordEncoder.encode(signUpDto.getPassword()));
         User saved = userRepository.save(map);
 
         riderService.createNewRider(saved);
