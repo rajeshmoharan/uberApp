@@ -11,10 +11,14 @@ import org.spring.demo.uberapp.entities.enums.Role;
 import org.spring.demo.uberapp.exceptions.ResourceNotFoundException;
 import org.spring.demo.uberapp.exceptions.RuntimeConflictException;
 import org.spring.demo.uberapp.repositories.UserRepository;
+import org.spring.demo.uberapp.sercurity.JWTService;
 import org.spring.demo.uberapp.servies.AuthService;
 import org.spring.demo.uberapp.servies.DriverService;
 import org.spring.demo.uberapp.servies.RiderService;
 import org.spring.demo.uberapp.servies.WalletService;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
@@ -32,12 +36,20 @@ public class AuthServiceImpl implements AuthService {
     private final WalletService walletService;
     private final DriverService driverService;
     private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JWTService jwtService;
 
     @Override
     public String[] login(String email, String password) {
-        String tokens[] = new String[2];
-        // TODO : Implement the login logic and generate access and refresh tokens
-        return tokens;
+        Authentication authenticate = authenticationManager
+                .authenticate(new UsernamePasswordAuthenticationToken(email, password));
+
+        User user = (User) authenticate.getPrincipal();
+
+        String accessToken = jwtService.generateAccessToken(user);
+        String refreshToken = jwtService.generateRefreshToken(user);
+
+        return new String[]{accessToken, refreshToken};
     }
 
     @Override
