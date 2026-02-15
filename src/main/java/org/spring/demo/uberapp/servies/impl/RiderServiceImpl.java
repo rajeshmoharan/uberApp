@@ -20,6 +20,7 @@ import org.spring.demo.uberapp.servies.RiderService;
 import org.spring.demo.uberapp.strategies.Impl.RideStrategyManager;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -123,7 +124,8 @@ public class RiderServiceImpl implements RiderService {
 
     @Override
     public Rider getCurrentRider() {
-        return riderRepository.findById(1L)
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return riderRepository.findByUser(user)
                 .orElseThrow(() -> new RuntimeException("Rider not available with the id "));
     }
 }

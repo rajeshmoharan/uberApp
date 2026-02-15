@@ -8,8 +8,12 @@ import org.spring.demo.uberapp.dto.*;
 import org.spring.demo.uberapp.servies.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.annotation.Secured;
+import org.springframework.security.authentication.AuthenticationServiceException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.context.support.HttpRequestHandlerServlet;
+
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/auth")
@@ -23,6 +27,7 @@ public class AuthController {
         return new ResponseEntity<>(authService.signUp(signUpDto), HttpStatus.CREATED);
     }
 
+    @Secured("ROLE_ADMIN")
     @PostMapping("/onBoardNewDriver/{userId}/{vechileId}")
     ResponseEntity<DriverDto> onBoardNewDriver(@PathVariable Long userId,@PathVariable String vechileId){
         return new ResponseEntity<>(authService.onboardingNewDriver(userId,vechileId), HttpStatus.CREATED);
@@ -45,6 +50,19 @@ public class AuthController {
                         .refreshToken(tokens[1])
                         .build()
         );
+    }
+
+    @PostMapping("/refresh")
+    public ResponseEntity<LoginResponseDto> refresh(HttpServletRequest request) {
+        String refreshToken = Arrays.stream(request.getCookies()).
+                filter(cookie -> "refreshToken".equals(cookie.getName()))
+                .findFirst()
+                .map(Cookie::getValue)
+                .orElseThrow(() -> new AuthenticationServiceException("Refresh token not found inside the Cookies"));
+
+        String accessToken = authService.refreshToken(refreshToken);
+
+        return ResponseEntity.ok(new LoginResponseDto(accessToken));
     }
 
 }
